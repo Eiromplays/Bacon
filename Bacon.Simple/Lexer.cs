@@ -1,0 +1,241 @@
+using System.Globalization;
+
+namespace Bacon.Simple;
+
+// TODO neste økt:
+// - Resten av Bacon-nøkkelord (besetning, for hver, prøv, fanger, kast,
+//   import, som, rute, mottar, parameter, spor, med, status, og, eller, ikke,
+//   sant, usant, ingenting, tekst, heltall, desimal, boolsk, liste, i, GET,
+//   POST, PUT, DELETE, PATCH)
+// - Flerords-operatorer: "større enn", "mindre enn", "er ikke", "for hver",
+//   "så lenge", "større eller lik", "mindre eller lik"
+//   → krever peek på neste ord (ikke bare neste tegn)
+// - Egen LexerException med god feilmelding (linje + kolonne)
+// - Flytt fra Bacon.Simple/ til Bacon.Compiler/Lexing/ i den ordentlige strukturen
+// - Skriv enhetstester i Bacon.Compiler.Tests
+public sealed class Lexer
+{
+    private readonly string _source;
+    private int _pos;
+    private int _line = 1;
+    private int _column = 1;
+    private int _tokenStartLine;
+    private int _tokenStartColumn;
+    private int _tokenStartPos;
+    private readonly List<Token> _tokens = [];
+
+    private Lexer(string source) => _source = source;
+
+    public static List<Token> Tokenize(string source) =>
+        new Lexer(source).Run();
+
+    private static readonly Dictionary<string, TokenType> Keywords = new()
+    {
+        { "fast", TokenType.Fast },
+        { "er", TokenType.Is },
+        { "åpen", TokenType.Open },
+        { "prosess", TokenType.Process },
+        { "hvis", TokenType.If },
+        { "ellers", TokenType.Else },
+        { "leverer", TokenType.Return },
+        { "besetning", TokenType.Besetning },
+        { "import", TokenType.Import },
+        { "som", TokenType.As },
+        { "rute", TokenType.Route },
+        { "mottar", TokenType.Receives },
+        { "parameter", TokenType.PathParam },
+        { "spor", TokenType.QueryParam },
+        { "med", TokenType.With },
+        { "status", TokenType.Status },
+        { "og", TokenType.And },
+        { "eller", TokenType.Or },
+        { "ikke", TokenType.Not },
+        { "sant", TokenType.True },
+        { "usant", TokenType.False },
+        { "ingenting", TokenType.Nothing },
+        { "tekst", TokenType.Text },
+        { "heltall", TokenType.Integer },
+        { "desimal", TokenType.Decimal },
+        { "boolsk", TokenType.Boolean },
+        { "liste", TokenType.List },
+        { "i", TokenType.In },
+        { "prøv", TokenType.Try },
+        { "fanger", TokenType.Catch },
+        { "kast", TokenType.Throw },
+        { "gir", TokenType.Yield },
+        { "GET", TokenType.HttpMethod },
+        { "POST", TokenType.HttpMethod },
+        { "PUT", TokenType.HttpMethod },
+        { "DELETE", TokenType.HttpMethod },
+        { "PATCH", TokenType.HttpMethod },
+    };
+
+    private List<Token> Run()
+    {
+        while (!IsAtEnd())
+        {
+            if (char.IsWhiteSpace(Current))
+            {
+                Advance();
+                continue;
+            }
+
+            if (Current == '/' && Peek() == '/')
+            {
+                AdvanceWhile(ch => ch != '\n');
+                continue;
+            }
+
+            _tokenStartLine = _line;
+            _tokenStartColumn = _column;
+            _tokenStartPos = _pos;
+
+            if (char.IsLetter(Current))
+            {
+                AdvanceWhile(char.IsLetterOrDigit);
+
+                var word = _source.Substring(_tokenStartPos, _pos - _tokenStartPos);
+
+                var tokenType = Keywords.GetValueOrDefault(word, TokenType.Identifier);
+
+                AddToken(tokenType, word, tokenType == TokenType.Identifier ? word : null);
+
+                continue;
+            }
+
+            if (char.IsDigit(Current))
+            {
+                AdvanceWhile(char.IsDigit);
+
+                var isDecimal = false;
+                if (Current == '.' && char.IsDigit(Peek()))
+                {
+                    Advance();
+                    AdvanceWhile(char.IsDigit);
+
+                    isDecimal = true;
+                }
+
+                var text = _source.Substring(_tokenStartPos, _pos - _tokenStartPos);
+
+                if (isDecimal)
+                    AddToken(TokenType.DecimalLiteral, text, double.Parse(text, CultureInfo.InvariantCulture));
+                else
+                    AddToken(TokenType.IntegerLiteral, text, long.Parse(text, CultureInfo.InvariantCulture));
+
+                continue;
+            }
+
+            if (Current == '"')
+            {
+                Advance();
+                var contentStart = _pos;
+                AdvanceWhile(ch => ch != '"');
+
+                if (IsAtEnd())
+                {
+                    throw new Exception($"Unterminated string starting at line {_tokenStartLine}, column {_tokenStartColumn}");
+                }
+
+                var contentEnd = _pos;
+                Advance();
+
+                var text = _source.Substring(contentStart, contentEnd - contentStart);
+
+                AddToken(TokenType.String, _source.Substring(_tokenStartPos, _pos - _tokenStartPos), text);
+
+                continue;
+            }
+
+            switch (Current)
+            {
+                case '{':
+                    AddSymbolToken(TokenType.LeftBrace);
+                    continue;
+                case '}':
+                    AddSymbolToken(TokenType.RightBrace);
+                    continue;
+                case '(':
+                    AddSymbolToken(TokenType.LeftParen);
+                    continue;
+                case ')':
+                    AddSymbolToken(TokenType.RightParen);
+                    continue;
+                case ':':
+                    AddSymbolToken(TokenType.Colon);
+                    continue;
+                case ',':
+                    AddSymbolToken(TokenType.Comma);
+                    continue;
+                case '+':
+                    AddSymbolToken(TokenType.Plus);
+                    continue;
+                case '-':
+                    AddSymbolToken(TokenType.Minus);
+                    continue;
+                case '*':
+                    AddSymbolToken(TokenType.Star);
+                    continue;
+                case '/':
+                    AddSymbolToken(TokenType.Slash);
+                    continue;
+                case '%':
+                    AddSymbolToken(TokenType.Percent);
+                    continue;
+                case '.':
+                    AddSymbolToken(TokenType.Dot);
+                    continue;
+                case '[':
+                    AddSymbolToken(TokenType.LeftBracket);
+                    continue;
+                case ']':
+                    AddSymbolToken(TokenType.RightBracket);
+                    continue;
+            }
+
+            AddToken(TokenType.Unknown, Current.ToString(), null);
+        }
+
+        AddToken(TokenType.EndOfFile, "", null);
+
+        return _tokens;
+    }
+
+    private void AddToken(TokenType type, string? originalValue, object? value)
+    {
+        _tokens.Add(new Token(type, originalValue, value,
+            _tokenStartLine, _tokenStartColumn, _tokenStartPos));
+    }
+
+    private void AddSymbolToken(TokenType type)
+    {
+        _tokens.Add(new Token(type, Current.ToString(), null,
+            _tokenStartLine, _tokenStartColumn, _tokenStartPos));
+        Advance();
+    }
+
+    private bool IsAtEnd() => _pos >= _source.Length;
+
+    private char Current => IsAtEnd() ? '\0' : _source[_pos];
+
+    private void Advance()
+    {
+        if (Current == '\n')
+        {
+            _line++;
+            _column = 1;
+        }
+        else _column++;
+        _pos++;
+    }
+
+    private void AdvanceWhile(Func<char, bool> predicate)
+    {
+        while (!IsAtEnd() && predicate(Current))
+        {
+            Advance();
+        }
+    }
+
+    private char Peek() => _pos + 1 < _source.Length ? _source[_pos + 1] : '\0';
+}
