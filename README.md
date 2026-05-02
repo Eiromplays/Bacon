@@ -35,12 +35,11 @@ rute GET "/bil/{id}" {
 
 ## What's done
 
-- Lexer with 50+ token types
-- Multi-word operators (`større enn`, `er ikke`, etc.)
-- Line and column tracking for error messages
-- AST nodes for the full language
-- Recursive descent parser with Pratt-style expression parsing
-- 50+ unit tests covering lexer and parser
+- Lexer with 50+ token types and multi-word operators
+- AST nodes covering full Bacon syntax
+- Recursive descent parser with Pratt-style expression precedence
+- AST printer for debugging and visualization
+- 50+ unit tests
 
 ## What's next
 
