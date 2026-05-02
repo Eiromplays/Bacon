@@ -1,18 +1,7 @@
 using System.Globalization;
 
-namespace Bacon.Simple;
+namespace Bacon.Compiler.Lexing;
 
-// TODO neste økt:
-// - Resten av Bacon-nøkkelord (besetning, for hver, prøv, fanger, kast,
-//   import, som, rute, mottar, parameter, spor, med, status, og, eller, ikke,
-//   sant, usant, ingenting, tekst, heltall, desimal, boolsk, liste, i, GET,
-//   POST, PUT, DELETE, PATCH)
-// - Flerords-operatorer: "større enn", "mindre enn", "er ikke", "for hver",
-//   "så lenge", "større eller lik", "mindre eller lik"
-//   → krever peek på neste ord (ikke bare neste tegn)
-// - Egen LexerException med god feilmelding (linje + kolonne)
-// - Flytt fra Bacon.Simple/ til Bacon.Compiler/Lexing/ i den ordentlige strukturen
-// - Skriv enhetstester i Bacon.Compiler.Tests
 public sealed class Lexer
 {
     private readonly string _source;
@@ -26,8 +15,11 @@ public sealed class Lexer
 
     private Lexer(string source) => _source = source;
 
-    public static List<Token> Tokenize(string source) =>
-        new Lexer(source).Run();
+    public static List<Token> Tokenize(string source)
+    {
+        var rawTokens = new Lexer(source).Run();
+        return MultiWordOperatorMerger.Merge(rawTokens);
+    }
 
     private static readonly Dictionary<string, TokenType> Keywords = new()
     {
@@ -53,11 +45,11 @@ public sealed class Lexer
         { "sant", TokenType.True },
         { "usant", TokenType.False },
         { "ingenting", TokenType.Nothing },
-        { "tekst", TokenType.Text },
-        { "heltall", TokenType.Integer },
-        { "desimal", TokenType.Decimal },
-        { "boolsk", TokenType.Boolean },
-        { "liste", TokenType.List },
+        { "tekst", TokenType.TextType },
+        { "heltall", TokenType.IntegerType },
+        { "desimal", TokenType.DecimalType },
+        { "boolsk", TokenType.BooleanType },
+        { "liste", TokenType.ListType },
         { "i", TokenType.In },
         { "prøv", TokenType.Try },
         { "fanger", TokenType.Catch },
@@ -68,6 +60,15 @@ public sealed class Lexer
         { "PUT", TokenType.HttpMethod },
         { "DELETE", TokenType.HttpMethod },
         { "PATCH", TokenType.HttpMethod },
+
+        { "for", TokenType.For },
+        { "så", TokenType.Saa },
+        { "større", TokenType.Greater },
+        { "mindre", TokenType.Less },
+        { "enn", TokenType.Than },
+        { "hver", TokenType.Each },
+        { "lenge", TokenType.Lenge },
+        { "lik", TokenType.Equal },
     };
 
     private List<Token> Run()
@@ -134,7 +135,7 @@ public sealed class Lexer
 
                 if (IsAtEnd())
                 {
-                    throw new Exception($"Unterminated string starting at line {_tokenStartLine}, column {_tokenStartColumn}");
+                    throw new LexerException("Unterminated string", _tokenStartLine, _tokenStartColumn);
                 }
 
                 var contentEnd = _pos;
@@ -142,7 +143,7 @@ public sealed class Lexer
 
                 var text = _source.Substring(contentStart, contentEnd - contentStart);
 
-                AddToken(TokenType.String, _source.Substring(_tokenStartPos, _pos - _tokenStartPos), text);
+                AddToken(TokenType.StringLiteral, _source.Substring(_tokenStartPos, _pos - _tokenStartPos), text);
 
                 continue;
             }
@@ -193,7 +194,7 @@ public sealed class Lexer
                     continue;
             }
 
-            AddToken(TokenType.Unknown, Current.ToString(), null);
+            AddSymbolToken(TokenType.Unknown);
         }
 
         AddToken(TokenType.EndOfFile, "", null);

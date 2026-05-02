@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Bacon.Simple;
+namespace Bacon.Compiler.Lexing;
 
 public enum TokenType
 {
@@ -27,11 +27,11 @@ public enum TokenType
     True,
     False,
     Nothing,
-    Text,
-    Integer,
-    Decimal,
-    Boolean,
-    List,
+    TextType,
+    IntegerType,
+    DecimalType,
+    BooleanType,
+    ListType,
     In,
     Try,
     Catch,
@@ -39,12 +39,30 @@ public enum TokenType
     Yield,
     HttpMethod,
 
+    // Multi-word operator components
+    For,
+    Saa,
+    Greater,
+    Less,
+    Than,
+    Each,
+    Lenge,
+    Equal,
+
+    // Multi-word operators (final tokens after merging)
+    ForEach,
+    While,
+    GreaterThan,
+    LessThan,
+    GreaterOrEqual,
+    LessOrEqual,
+    NotEqual,
 
     // Literals
     Identifier,
     IntegerLiteral,
     DecimalLiteral,
-    String,
+    StringLiteral,
 
     // Symbols
     LeftBrace, RightBrace,
