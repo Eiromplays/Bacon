@@ -136,11 +136,11 @@ public class EvaluatorTests
     {
         var tokens = Lexer.Tokenize(source);
 
-        // Parse som statements (programmer på toppnivå er statements for nå)
-        // Vi simulerer ved å parse et "program" og evaluere statements direkte
+        // Parse as statements ("programmer" at top level is statements for now)
+        // We simulate by parsing a "program" and evaluating statements directly
         var evaluator = new Evaluator();
 
-        // Hack for nå: pakk source i en prosess for å få statements
+        // Workaround: wrap source in a process to get statements
         var wrapped = $"prosess test() {{ {source} }}";
         var wrappedTokens = Lexer.Tokenize(wrapped);
         var program = Parser.Parse(wrappedTokens);
@@ -155,7 +155,7 @@ public class EvaluatorTests
     {
         var (eval, _) = EvalProgram("fast x er 5");
 
-        // Vi må sjekke at x er bundet — bruk EvaluateExpression
+        // Verify x is bound by using EvaluateExpression
         var result = eval.EvaluateExpression(new VariableExpression("x", 1));
         var i = result.ShouldBeOfType<BaconInteger>();
         i.Value.ShouldBe(5L);
@@ -299,7 +299,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_ProcessLocalScope_DoesNotLeakOutside()
     {
-        // x i hjelp() skal ikke være tilgjengelig i hovedprogram
+        // x in hjelp() should not be accessible in hovedprogram
         Should.Throw<RuntimeException>(() => Run("""
             prosess hjelp() {
                 fast x er 5

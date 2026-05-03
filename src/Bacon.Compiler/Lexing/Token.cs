@@ -17,8 +17,6 @@ public enum TokenType
     As,
     Route,
     Receives,
-    PathParam,
-    QueryParam,
     With,
     Status,
     And,

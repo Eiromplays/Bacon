@@ -11,6 +11,10 @@ public sealed partial class Evaluator
         BaconNothing => "ingenting",
         BaconList => "liste",
         BaconBesetningInstance b => b.Type.Declaration.Name,
+        BaconBesetningType t => $"besetning-type {t.Declaration.Name}",
+        BaconProcess p => $"prosess {p.Declaration.Name}",
+        BaconBuiltinFunction b => $"innebygd funksjon {b.Name}",
+        BaconPathParameters => "parametere",
         _ => "ukjent type"
     };
 

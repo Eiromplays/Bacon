@@ -26,7 +26,7 @@ public sealed record ProcessDeclaration(
 
 public sealed record ParameterDeclaration(
     string Name,
-    string? TypeName,          // type-annotering er valgfri
+    string? TypeName,
     int Line) : AstNode(Line);
 
 // rute GET "/bil/{id}" mottar data : NyBil { ... }

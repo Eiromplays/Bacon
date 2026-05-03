@@ -56,9 +56,11 @@ public sealed partial class Evaluator
             case BesetningDeclaration besetning:
                 _global.Define(besetning.Name, new BaconBesetningType(besetning), isImmutable: true);
                 break;
-            case ImportDeclaration:
             case RouteDeclaration:
-                // TODO: håndter senere
+                // Routes are registered by Bacon.Web, not evaluated as global state
+                break;
+            case ImportDeclaration:
+                // Import system not yet implemented, all stdlib is global
                 break;
 
             default:

@@ -1,14 +1,22 @@
 ﻿using Bacon.Compiler.Evaluation;
 using Bacon.Compiler.Lexing;
 using Bacon.Compiler.Parsing;
+using Bacon.Web;
 
 if (args.Length < 1)
 {
-    Console.Error.WriteLine("Bruk: bacon <fil.bacon>");
+    Console.Error.WriteLine("Bruk: bacon [--serve] <fil.bacon>");
     return 1;
 }
 
-var filePath = args[0];
+var serve = args.Contains("--serve");
+var filePath = args.LastOrDefault(a => !a.StartsWith("--"));
+
+if (filePath == null)
+{
+    Console.Error.WriteLine("Mangler fil-argument");
+    return 1;
+}
 
 if (!File.Exists(filePath))
 {
@@ -22,7 +30,17 @@ try
 {
     var tokens = Lexer.Tokenize(source);
     var program = Parser.Parse(tokens);
-    Evaluator.Evaluate(program);
+
+    if (serve)
+    {
+        var host = new BaconWebHost(program);
+        await host.RunAsync();
+    }
+    else
+    {
+        Evaluator.Evaluate(program);
+    }
+
     return 0;
 }
 catch (LexerException ex)

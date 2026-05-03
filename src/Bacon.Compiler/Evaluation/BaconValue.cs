@@ -28,3 +28,6 @@ public sealed record BaconProcess(
 public sealed record BaconBuiltinFunction(
     string Name,
     Func<IReadOnlyList<BaconValue>, BaconValue> Implementation) : BaconValue;
+
+public sealed record BaconPathParameters(
+    Dictionary<string, BaconValue> Parameters) : BaconValue;

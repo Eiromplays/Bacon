@@ -1,0 +1,17 @@
+besetning Bil {
+    fast id : tekst
+    fast modell : tekst
+    fast årsmodell : heltall
+}
+
+prosess hent_bil(bil_id) {
+    leverer Bil(bil_id, "Volvo V40", 2018)
+}
+
+rute GET "/bil/{id}" {
+    leverer hent_bil(parameter.id)
+}
+
+rute GET "/" {
+    leverer "Bacon API kjører!"
+}

@@ -25,7 +25,7 @@ public sealed partial class Parser
     {
         var token = Expect(TokenType.Return, "leverer");
 
-        // Hvis neste token er } eller EndOfFile, er det "leverer" alene
+        // If next token is } or EndOfFile, is it "leverer" alone
         if (Check(TokenType.RightBrace) || IsAtEnd())
         {
             return new ReturnStatement(null, token.Line);
@@ -35,7 +35,6 @@ public sealed partial class Parser
         return new ReturnStatement(value, token.Line);
     }
 
-    // kast "feil"
     private ThrowStatement ParseThrowStatement()
     {
         var token = Expect(TokenType.Throw, "kast");
@@ -54,7 +53,7 @@ public sealed partial class Parser
         if (!Match(TokenType.Else))
             return new IfStatement(condition, thenBranch, elseBranch, ifToken.Line);
 
-        // "ellers hvis" — recursive
+        // "ellers hvis" - recursive
         elseBranch = Check(TokenType.If) ? [ParseIfStatement()] : ParseBlock();
 
         return new IfStatement(condition, thenBranch, elseBranch, ifToken.Line);

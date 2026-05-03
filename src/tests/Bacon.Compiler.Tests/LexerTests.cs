@@ -33,13 +33,13 @@ public class LexerTests
 
         first.Type.ShouldBe(TokenType.StringLiteral);
         first.Value.ShouldBe("hello");
-        first.OriginalValue.ShouldBe("\"hello\"");  // Lexeme inkluderer hermetegn
+        first.OriginalValue.ShouldBe("\"hello\"");  // "hello" - Lexeme includes the quotes
     }
 
     [Fact]
     public void Tokenize_IntegerWithDotButNoDigit_DoesNotTreatAsDecimal()
     {
-        // 5.foo skal være Integer(5), Dot, Identifier(foo) — ikke Decimal
+        // 5.foo should be Integer(5), Dot, Identifier(foo), not Decimal
         var tokens = Lexer.Tokenize("5.foo");
 
         tokens.Select(t => t.Type).ShouldBe([
@@ -56,7 +56,7 @@ public class LexerTests
         var source = "fast x\nfast y";
         var tokens = Lexer.Tokenize(source);
 
-        // fast på linje 1, fast på linje 2
+        // fast on line 1, fast on line 2
         tokens[0].Line.ShouldBe(1);
         tokens[2].Line.ShouldBe(2);
     }
@@ -67,16 +67,16 @@ public class LexerTests
         var tokens = Lexer.Tokenize("    fast");
 
         tokens[0].Type.ShouldBe(TokenType.Fast);
-        tokens[0].Column.ShouldBe(5);  // 4 spaces, så fast starter på kolonne 5
+        tokens[0].Column.ShouldBe(5);  // 4 spaces, so fast starts on column 5
     }
 
     [Fact]
     public void Tokenize_TokenStart_PointsToFirstCharacter()
     {
-        // Ikke siste — det var den bug'en du fixet i går
+        // Not last — that was the bug from yesterday
         var tokens = Lexer.Tokenize("hello");
 
-        tokens[0].Column.ShouldBe(1);  // h er på kolonne 1, ikke o (som ville vært slutten)
+        tokens[0].Column.ShouldBe(1);  // String starts at column 1
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class LexerTests
         var ex = Should.Throw<LexerException>(() => Lexer.Tokenize("\"hello"));
 
         ex.Line.ShouldBe(1);
-        ex.Column.ShouldBe(1);  // strengen starter på posisjon 1
+        ex.Column.ShouldBe(1);  // string starts at position 1
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public class LexerTests
             TokenType.ForEach,
             TokenType.Identifier,
             TokenType.Identifier,    // i (soft keyword)
-            TokenType.ListType,    // "liste" mappes til ListType
+            TokenType.ListType,    // "liste" maps to ListType
             TokenType.EndOfFile,
         ]);
     }
@@ -196,7 +196,7 @@ public class LexerTests
         var notEqual = tokens[1];
 
         notEqual.Line.ShouldBe(1);
-        notEqual.Column.ShouldBe(3);  // "er" starter på kolonne 3
+        notEqual.Column.ShouldBe(3);  // "er" starts at column 3
     }
 
     [Fact]

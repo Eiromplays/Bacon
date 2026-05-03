@@ -35,8 +35,6 @@ public sealed class Lexer
         { "som", TokenType.As },
         { "rute", TokenType.Route },
         { "mottar", TokenType.Receives },
-        { "parameter", TokenType.PathParam },
-        { "spor", TokenType.QueryParam },
         { "med", TokenType.With },
         { "status", TokenType.Status },
         { "og", TokenType.And },

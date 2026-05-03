@@ -25,7 +25,7 @@ public sealed partial class Parser
     {
         var token = Expect(TokenType.Import, "import");
 
-        // Bygg path: identifier (. identifier)*
+        // Build path: identifier (. identifier)*
         var pathParts = new List<string>
         {
             Expect(TokenType.Identifier, "module name").OriginalValue!
@@ -61,8 +61,8 @@ public sealed partial class Parser
         {
             fields.Add(ParseFieldDeclaration());
 
-            // Optional comma between fields (Bacon-stil — vi kan velge å kreve det eller ikke)
-            Match(TokenType.Comma);  // konsumer hvis det er der, ellers skip
+            // Optional comma between fields
+            Match(TokenType.Comma);  // consume if it is there, else skip
         }
 
         Expect(TokenType.RightBrace, "}");
@@ -88,7 +88,7 @@ public sealed partial class Parser
         var name = Expect(TokenType.Identifier, "field name");
         Expect(TokenType.Colon, ":");
 
-        // Type-navnet kan være et type-keyword eller en identifier
+        // Type name can be a type-keyword or an identifier
         var typeName = ParseTypeName();
 
         return new FieldDeclaration(
@@ -98,7 +98,6 @@ public sealed partial class Parser
             firstToken.Line);
     }
 
-    // Hjelpemetode: parses et type-navn, enten innebygd type eller brukerdefinert
     private string ParseTypeName()
     {
         var token = Current;

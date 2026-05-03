@@ -80,7 +80,7 @@ public sealed partial class Parser
         if (Match(TokenType.Minus))
         {
             var line = _tokens[_current - 1].Line;
-            var operand = ParseUnary();   // recursive: tillater --x (selv om sjeldent)
+            var operand = ParseUnary();   // recursive: allows --x (even though it is rare)
             return new UnaryExpression(UnaryOperator.Negate, operand, line);
         }
 

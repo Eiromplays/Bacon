@@ -78,14 +78,24 @@ public sealed partial class Evaluator
     {
         var target = EvaluateExpression(expr.Target);
 
-        if (target is not BaconBesetningInstance instance)
-            throw new RuntimeException($"Cannot access field on {TypeName(target)}");
-
-        if (!instance.Fields.TryGetValue(expr.FieldName, out var value))
-            throw new RuntimeException($"'{instance.TypeName}' has no field '{expr.FieldName}'");
-
-        return value;
+        return target switch
+        {
+            BaconBesetningInstance instance => GetField(instance, expr.FieldName),
+            BaconPathParameters pathParams => GetPathParam(pathParams, expr.FieldName),
+            _ => throw new RuntimeException($"Cannot access field on {TypeName(target)}")
+        };
     }
+
+    private static BaconValue GetField(BaconBesetningInstance instance, string fieldName)
+    {
+        return !instance.Fields.TryGetValue(fieldName, out var value) ? throw new RuntimeException($"'{instance.Type.Declaration.Name}' has no field '{fieldName}'") : value;
+    }
+
+    private static BaconValue GetPathParam(BaconPathParameters pathParams, string name)
+    {
+        return !pathParams.Parameters.TryGetValue(name, out var value) ? throw new RuntimeException($"No path parameter named '{name}'") : value;
+    }
+
 
     private static BaconValue Add(BaconValue left, BaconValue right) => (left, right) switch
     {
@@ -117,7 +127,7 @@ public sealed partial class Evaluator
 
     private static BaconValue Divide(BaconValue left, BaconValue right)
     {
-        // Guard again divide by zero
+        // Guard against divide by zero
         if (right is BaconInteger { Value: 0 } or BaconDecimal { Value: 0.0 })
             throw new RuntimeException("Division by zero");
 

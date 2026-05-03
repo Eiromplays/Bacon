@@ -21,25 +21,25 @@ public sealed partial class Parser
 
     private static readonly Dictionary<TokenType, (BinaryOperator Op, int Precedence)> BinaryOperators = new()
     {
-        // Logikk (lavest)
+        // Logic (lowest)
         [TokenType.Or]              = (BinaryOperator.Or, 10),
         [TokenType.And]             = (BinaryOperator.And, 20),
 
-        // Likhet
+        // Equality
         [TokenType.Is]              = (BinaryOperator.Equal, 30),
         [TokenType.NotEqual]        = (BinaryOperator.NotEqual, 30),
 
-        // Sammenligning
+        // Compare
         [TokenType.GreaterThan]     = (BinaryOperator.Greater, 40),
         [TokenType.LessThan]        = (BinaryOperator.Less, 40),
         [TokenType.GreaterOrEqual]  = (BinaryOperator.GreaterOrEqual, 40),
         [TokenType.LessOrEqual]     = (BinaryOperator.LessOrEqual, 40),
 
-        // Addisjon
+        // Addition
         [TokenType.Plus]            = (BinaryOperator.Plus, 50),
         [TokenType.Minus]           = (BinaryOperator.Minus, 50),
 
-        // Multiplikasjon (høyest)
+        // Multiplication (highest)
         [TokenType.Star]            = (BinaryOperator.Star, 60),
         [TokenType.Slash]           = (BinaryOperator.Slash, 60),
         [TokenType.Percent]         = (BinaryOperator.Percent, 60),
@@ -60,11 +60,6 @@ public sealed partial class Parser
     private bool IsAtEnd() => Current.Type == TokenType.EndOfFile;
 
     private Token Current => _tokens[_current];
-
-    private Token Peek(int offset = 1) =>
-        _current + offset < _tokens.Count
-            ? _tokens[_current + offset]
-            : _tokens[^1];   // siste token (EndOfFile)
 
     private Token Advance()
     {

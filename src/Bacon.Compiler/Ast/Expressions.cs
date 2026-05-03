@@ -25,13 +25,12 @@ public sealed record FieldAccessExpression(Expression Target, string FieldName, 
 // Liste-literal: [1, 2, 3]
 public sealed record ListExpression(IReadOnlyList<Expression> Elements, int Line) : Expression(Line);
 
-// Operatorer
 public enum BinaryOperator
 {
-    Plus, Minus, Star, Slash, Percent,         // aritmetikk
-    Equal, NotEqual,                            // likhet
-    Greater, Less, GreaterOrEqual, LessOrEqual, // sammenligning
-    And, Or,                                    // logikk
+    Plus, Minus, Star, Slash, Percent,         // arithmetic
+    Equal, NotEqual,                            // equality
+    Greater, Less, GreaterOrEqual, LessOrEqual, // compare
+    And, Or,                                    // logic
 }
 
 public enum UnaryOperator
