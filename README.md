@@ -2,47 +2,52 @@
 
 A toy programming language for building web APIs in Norwegian Bokmål.
 
-Inspired by [Brunost](https://github.com/atomfinger/brunost) — a colleague
+Inspired by [Brunost](https://github.com/atomfinger/brunost) which a colleague
 shared it, another colleague joked we should make our own called Bacon,
 and I may or may not have taken it a little bit too seriously.
 
 ## Status
 
-Bacon can now execute programs end-to-end with variables, functions, control
-flow, and user-defined types. Web API support (route declarations bound to
-ASP.NET endpoints) is planned but not yet implemented.
+Bacon is a working programming language with web API support. Programs run as
+console apps or as HTTP servers serving JSON APIs.
 
-## Try it
+## Try a console program
 
 ```bash
-dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/hello.bacon
-dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/fakultet.bacon
-dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/løkke.bacon
-dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/bil.bacon
+dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/hello.bacon
+dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/fakultet.bacon
+dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/bil.bacon
 ```
 
-## Example
+## Try the web API
+
+```bash
+dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj -- --serve examples/bil_api.bacon
+```
+
+In another terminal:
+```bash
+curl http://localhost:5000/bil/123
+# {"id":"123","modell":"Volvo V40","årsmodell":2018}
+```
+
+## Example: web API
 
 ```bacon
 besetning Bil {
     fast id : tekst
-    åpen modell : tekst
-    åpen årsmodell : heltall
+    fast modell : tekst
+    fast årsmodell : heltall
 }
 
-prosess hovedprogram() {
-    fast min_bil er Bil("1", "Volvo", 2018)
-    skriv("Bil:", min_bil.modell, min_bil.årsmodell)
-    
-    min_bil.modell er "Toyota"
-    min_bil.årsmodell er 2024
-    skriv("Etter oppdatering:", min_bil.modell, min_bil.årsmodell)
+prosess hent_bil(bil_id) {
+    leverer Bil(bil_id, "Volvo V40", 2018)
+}
+
+rute GET "/bil/{id}" {
+    leverer hent_bil(parameter.id)
 }
 ```
-
-Output:
-Bil: Volvo 2018
-Etter oppdatering: Tesla 2024
 
 ## What's done
 
@@ -51,26 +56,30 @@ Etter oppdatering: Tesla 2024
 - AST nodes for the full language
 - AstPrinter for debugging
 - Tree-walker evaluator with lexical scoping and closures
-- Functions with proper return semantics via ReturnException
-- User-defined types via `besetning` with field access and assignment
+- User-defined types (`besetning`) with field immutability
 - Builtin functions: `skriv`, `lengde`, `til_tekst`
-- CLI for running `.bacon` files
-- ~100 unit tests
+- ASP.NET web runtime with route mapping and JSON responses
+- Path parameters via `parameter.x` syntax
+- CLI for running and serving `.bacon` files
+- 100+ unit tests
 
 ## What's next
 
+- Status codes (`leverer status 404`)
+- Body binding (`mottar data : NyBil`)
+- Query parameters
 - Named constructor arguments (`Bil(id: "1", modell: "Volvo")`)
+- String escapes (`\n`, `\t`)
 - More stdlib functions
-- String escapes (`\n`, `\t`, `\"`)
-- ASP.NET runtime: bind route declarations to actual web endpoints
 
 ## Project structure
 src/
-Bacon.Compiler/       Lexer, parser, AST, evaluator (class library)
+Bacon.Compiler/       Lexer, parser, AST, evaluator
 Ast/
 Lexing/
 Parsing/
 Evaluation/
+Bacon.Web/            ASP.NET integration
 Bacon.Simple/         CLI for running .bacon files
 tests/
 Bacon.Compiler.Tests/ xUnit tests
