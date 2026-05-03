@@ -65,15 +65,16 @@ public sealed partial class Parser
     {
         var token = Expect(TokenType.ForEach, "for hver");
         var variable = Expect(TokenType.Identifier, "loop variable");
-        Expect(TokenType.In, "i");
+
+        // Check that the next token is Identifier with name "i"
+        var inToken = Expect(TokenType.Identifier, "'i'");
+        if (inToken.OriginalValue != "i")
+            throw new ParseException($"Expected 'i', got '{inToken.OriginalValue}'", inToken.Line, inToken.Column);
+
         var iterable = ParseExpression();
         var body = ParseBlock();
 
-        return new ForEachStatement(
-            variable.OriginalValue!,
-            iterable,
-            body,
-            token.Line);
+        return new ForEachStatement(variable.OriginalValue!, iterable, body, token.Line);
     }
 
     // så lenge x { ... }

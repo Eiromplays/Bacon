@@ -50,7 +50,6 @@ public sealed class Lexer
         { "desimal", TokenType.DecimalType },
         { "boolsk", TokenType.BooleanType },
         { "liste", TokenType.ListType },
-        { "i", TokenType.In },
         { "prøv", TokenType.Try },
         { "fanger", TokenType.Catch },
         { "kast", TokenType.Throw },

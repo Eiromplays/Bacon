@@ -32,7 +32,6 @@ public enum TokenType
     DecimalType,
     BooleanType,
     ListType,
-    In,
     Try,
     Catch,
     Throw,

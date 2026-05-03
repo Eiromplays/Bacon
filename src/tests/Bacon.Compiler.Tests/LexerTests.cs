@@ -174,7 +174,7 @@ public class LexerTests
         tokens.Select(t => t.Type).ShouldBe([
             TokenType.ForEach,
             TokenType.Identifier,
-            TokenType.In,
+            TokenType.Identifier,    // i (soft keyword)
             TokenType.ListType,    // "liste" mappes til ListType
             TokenType.EndOfFile,
         ]);
