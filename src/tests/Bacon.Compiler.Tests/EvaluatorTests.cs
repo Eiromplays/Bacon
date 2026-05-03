@@ -427,4 +427,51 @@ public class EvaluatorTests
             }
             """));
     }
+
+    [Fact]
+    public void Evaluate_ReassignFastField_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+                                                 besetning Bil {
+                                                     fast id : tekst
+                                                     åpen modell : tekst
+                                                 }
+                                                 prosess hovedprogram() {
+                                                     fast b er Bil("1", "Volvo")
+                                                     b.id er "2"
+                                                 }
+                                                 """));
+    }
+
+    [Fact]
+    public void Evaluate_ReassignOpenField_Works()
+    {
+        var result = Run("""
+                         besetning Bil {
+                             fast id : tekst
+                             åpen modell : tekst
+                         }
+                         prosess hovedprogram() {
+                             fast b er Bil("1", "Volvo")
+                             b.modell er "Tesla"
+                             leverer b.modell
+                         }
+                         """);
+
+        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Tesla");
+    }
+
+    [Fact]
+    public void Evaluate_AssignNonexistentField_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+                                                 besetning Bil {
+                                                     fast id : tekst
+                                                 }
+                                                 prosess hovedprogram() {
+                                                     fast b er Bil("1")
+                                                     b.fart er 100
+                                                 }
+                                                 """));
+    }
 }

@@ -38,7 +38,7 @@ public sealed partial class Evaluator
             fields[decl.Fields[i].Name] = args[i];
         }
 
-        return new BaconBesetningInstance(decl.Name, fields);
+        return new BaconBesetningInstance(type, fields);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",

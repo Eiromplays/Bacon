@@ -13,7 +13,12 @@ public sealed record BaconNothing : BaconValue
     public static readonly BaconNothing Instance = new();
 }
 public sealed record BaconList(List<BaconValue> Elements) : BaconValue;
-public sealed record BaconBesetningInstance(string TypeName, Dictionary<string, BaconValue> Fields) : BaconValue;
+public sealed record BaconBesetningInstance(
+    BaconBesetningType Type,
+    Dictionary<string, BaconValue> Fields) : BaconValue
+{
+    public string TypeName => Type.Declaration.Name;
+}
 public sealed record BaconBesetningType(BesetningDeclaration Declaration) : BaconValue;
 
 public sealed record BaconProcess(

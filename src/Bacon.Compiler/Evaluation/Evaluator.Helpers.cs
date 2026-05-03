@@ -10,7 +10,7 @@ public sealed partial class Evaluator
         BaconBoolean => "boolsk",
         BaconNothing => "ingenting",
         BaconList => "liste",
-        BaconBesetningInstance b => b.TypeName,
+        BaconBesetningInstance b => b.Type.Declaration.Name,
         _ => "ukjent type"
     };
 

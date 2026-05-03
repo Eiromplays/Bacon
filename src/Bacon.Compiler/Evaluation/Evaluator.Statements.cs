@@ -110,7 +110,17 @@ public sealed partial class Evaluator
         if (target is not BaconBesetningInstance instance)
             throw new RuntimeException($"Cannot assign field on {TypeName(target)}");
 
-        // Check that the fields exists (but allows all fields for now, immutability check would require type lookup)
+        var fieldDecl = instance.Type.Declaration.Fields
+            .FirstOrDefault(f => f.Name == fieldAccess.FieldName);
+
+        if (fieldDecl == null)
+            throw new RuntimeException(
+                $"'{instance.TypeName}' has no field '{fieldAccess.FieldName}'");
+
+        if (fieldDecl.IsImmutable)
+            throw new RuntimeException(
+                $"Cannot reassign immutable field '{fieldAccess.FieldName}' on '{instance.TypeName}'");
+
         instance.Fields[fieldAccess.FieldName] = value;
     }
 
