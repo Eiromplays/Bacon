@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\Bacon.Compiler\Bacon.Compiler.csproj" />
-      <ProjectReference Include="..\src\Bacon.Web\Bacon.Web.csproj" />
+      <ProjectReference Include="..\Bacon.Compiler\Bacon.Compiler.csproj" />
+      <ProjectReference Include="..\Bacon.Web\Bacon.Web.csproj" />
     </ItemGroup>
 
 </Project>

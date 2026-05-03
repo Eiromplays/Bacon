@@ -3,7 +3,7 @@
 A toy programming language for building web APIs in Norwegian Bokmål.
 
 Inspired by [Brunost](https://github.com/atomfinger/brunost) which a colleague
-shared it, another colleague joked we should make our own called Bacon,
+shared. Another colleague joked we should make our own called Bacon,
 and I may or may not have taken it a little bit too seriously.
 
 ## Status
@@ -14,15 +14,14 @@ console apps or as HTTP servers serving JSON APIs.
 ## Try a console program
 
 ```bash
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/hello.bacon
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/fakultet.bacon
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/bil.bacon
+dotnet run --project src/Bacon.Cli/Bacon.Cli.csproj examples/hello.bacon
+dotnet run --project src/Bacon.Cli/Bacon.Cli.csproj examples/fakultet.bacon
+dotnet run --project src/Bacon.Cli/Bacon.Cli.csproj examples/bil.bacon
 ```
 
 ## Try the web API
-
 ```bash
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj -- --serve examples/bil_api.bacon
+dotnet run --project src/Bacon.Cli/Bacon.Cli.csproj -- --serve examples/bil_api.bacon
 ```
 
 In another terminal:
@@ -73,17 +72,16 @@ rute GET "/bil/{id}" {
 - More stdlib functions
 
 ## Project structure
+
+```
 src/
-Bacon.Compiler/       Lexer, parser, AST, evaluator
-Ast/
-Lexing/
-Parsing/
-Evaluation/
-Bacon.Web/            ASP.NET integration
-Bacon.Simple/         CLI for running .bacon files
-tests/
-Bacon.Compiler.Tests/ xUnit tests
+    Bacon.Compiler/       Lexer, parser, AST, evaluator
+    Bacon.Web/            ASP.NET integration
+    Bacon.Cli/            CLI for running and serving .bacon files
+    tests/
+        Bacon.Compiler.Tests/ xUnit tests
 examples/               Sample Bacon programs
+```
 
 ## Build
 

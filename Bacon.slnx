@@ -5,11 +5,11 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Bacon.Cli/Bacon.Cli.csproj" />
     <Project Path="src/Bacon.Compiler/Bacon.Compiler.csproj" />
     <Project Path="src/Bacon.Web/Bacon.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="src/tests/Bacon.Compiler.Tests/Bacon.Compiler.Tests.csproj" />
   </Folder>
-  <Project Path="Bacon.Simple/Bacon.Simple.csproj" />
 </Solution>
