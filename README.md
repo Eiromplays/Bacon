@@ -8,35 +8,41 @@ and I may or may not have taken it a little bit too seriously.
 
 ## Status
 
-Bacon can now execute programs. Lexer, parser, and tree-walker evaluator are
-complete. Web API support (route declarations bound to ASP.NET endpoints) is
-planned but not yet implemented.
+Bacon can now execute programs end-to-end with variables, functions, control
+flow, and user-defined types. Web API support (route declarations bound to
+ASP.NET endpoints) is planned but not yet implemented.
 
 ## Try it
 
 ```bash
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/hello.bacon
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/fakultet.bacon
-dotnet run --project src/Bacon.Simple/Bacon.Simple.csproj examples/løkke.bacon
+dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/hello.bacon
+dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/fakultet.bacon
+dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/løkke.bacon
+dotnet run --project Bacon.Simple/Bacon.Simple.csproj examples/bil.bacon
 ```
 
 ## Example
 
 ```bacon
-prosess fakultet(n) {
-    hvis n mindre eller lik 1 {
-        leverer 1
-    }
-    leverer n * fakultet(n - 1)
+besetning Bil {
+    fast id : tekst
+    åpen modell : tekst
+    åpen årsmodell : heltall
 }
 
 prosess hovedprogram() {
-    skriv("fakultet(5) =", fakultet(5))
+    fast min_bil er Bil("1", "Volvo", 2018)
+    skriv("Bil:", min_bil.modell, min_bil.årsmodell)
+    
+    min_bil.modell er "Toyota"
+    min_bil.årsmodell er 2024
+    skriv("Etter oppdatering:", min_bil.modell, min_bil.årsmodell)
 }
 ```
 
 Output:
-fakultet(5) = 120
+Bil: Volvo 2018
+Etter oppdatering: Tesla 2024
 
 ## What's done
 
@@ -46,14 +52,15 @@ fakultet(5) = 120
 - AstPrinter for debugging
 - Tree-walker evaluator with lexical scoping and closures
 - Functions with proper return semantics via ReturnException
+- User-defined types via `besetning` with field access and assignment
 - Builtin functions: `skriv`, `lengde`, `til_tekst`
 - CLI for running `.bacon` files
-- 93 unit tests
+- ~100 unit tests
 
 ## What's next
 
-- Besetning instances (creating and using struct-like values)
-- Field assignment (`bil.modell er "Volvo"`)
+- Field immutability enforcement (`fast` fields blocking reassignment)
+- Named constructor arguments (`Bil(id: "1", modell: "Volvo")`)
 - More stdlib functions
 - ASP.NET runtime: bind route declarations to actual web endpoints
 
