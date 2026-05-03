@@ -59,9 +59,9 @@ Etter oppdatering: Tesla 2024
 
 ## What's next
 
-- Field immutability enforcement (`fast` fields blocking reassignment)
 - Named constructor arguments (`Bil(id: "1", modell: "Volvo")`)
 - More stdlib functions
+- String escapes (`\n`, `\t`, `\"`)
 - ASP.NET runtime: bind route declarations to actual web endpoints
 
 ## Project structure
