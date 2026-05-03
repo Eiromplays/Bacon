@@ -14,6 +14,7 @@ public sealed record BaconNothing : BaconValue
 }
 public sealed record BaconList(List<BaconValue> Elements) : BaconValue;
 public sealed record BaconBesetningInstance(string TypeName, Dictionary<string, BaconValue> Fields) : BaconValue;
+public sealed record BaconBesetningType(BesetningDeclaration Declaration) : BaconValue;
 
 public sealed record BaconProcess(
     ProcessDeclaration Declaration,

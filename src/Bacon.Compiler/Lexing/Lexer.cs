@@ -90,9 +90,9 @@ public sealed class Lexer
             _tokenStartColumn = _column;
             _tokenStartPos = _pos;
 
-            if (char.IsLetter(Current))
+            if (char.IsLetter(Current) || Current == '_')
             {
-                AdvanceWhile(char.IsLetterOrDigit);
+                AdvanceWhile(ch => char.IsLetterOrDigit(ch) || ch == '_');
 
                 var word = _source.Substring(_tokenStartPos, _pos - _tokenStartPos);
 

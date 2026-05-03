@@ -335,4 +335,96 @@ public class EvaluatorTests
             }
             """));
     }
+
+    [Fact]
+    public void Evaluate_BesetningInstantiation_CreatesInstance()
+    {
+        var result = Run("""
+            besetning Bil {
+                fast id : tekst
+                åpen modell : tekst
+            }
+            prosess hovedprogram() {
+                fast b er Bil("1", "Volvo")
+                leverer b
+            }
+            """);
+
+        var instance = result.ShouldBeOfType<BaconBesetningInstance>();
+        instance.TypeName.ShouldBe("Bil");
+        instance.Fields["id"].ShouldBeOfType<BaconString>().Value.ShouldBe("1");
+        instance.Fields["modell"].ShouldBeOfType<BaconString>().Value.ShouldBe("Volvo");
+    }
+
+    [Fact]
+    public void Evaluate_FieldAccess_ReadsField()
+    {
+        var result = Run("""
+            besetning Bil {
+                fast id : tekst
+            }
+            prosess hovedprogram() {
+                fast b er Bil("ABC123")
+                leverer b.id
+            }
+            """);
+
+        result.ShouldBeOfType<BaconString>().Value.ShouldBe("ABC123");
+    }
+
+    [Fact]
+    public void Evaluate_FieldAssignment_UpdatesField()
+    {
+        var result = Run("""
+            besetning Bil {
+                åpen modell : tekst
+            }
+            prosess hovedprogram() {
+                fast b er Bil("Volvo")
+                b.modell er "Tesla"
+                leverer b.modell
+            }
+            """);
+
+        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Tesla");
+    }
+
+    [Fact]
+    public void Evaluate_WrongArgCount_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+            besetning Bil {
+                fast id : tekst
+                fast modell : tekst
+            }
+            prosess hovedprogram() {
+                leverer Bil("1")
+            }
+            """));
+    }
+
+    [Fact]
+    public void Evaluate_UnknownField_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+            besetning Bil {
+                fast id : tekst
+            }
+            prosess hovedprogram() {
+                fast b er Bil("1")
+                leverer b.modell
+            }
+            """));
+    }
+
+    [Fact]
+    public void Evaluate_FieldAccessOnNonBesetning_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+            prosess hovedprogram() {
+                fast x er 5
+                leverer x.modell
+            }
+            """));
+    }
 }

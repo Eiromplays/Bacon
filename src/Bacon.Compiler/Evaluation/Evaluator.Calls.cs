@@ -13,8 +13,32 @@ public sealed partial class Evaluator
         {
             BaconProcess process => CallProcess(process, args),
             BaconBuiltinFunction builtin => builtin.Implementation(args),
+            BaconBesetningType type => InstantiateBesetning(type, args),
             _ => throw new RuntimeException($"Cannot call value of type {TypeName(callee)}")
         };
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",
+        Justification = "We do not need to modify the list just read it")]
+    private static BaconBesetningInstance InstantiateBesetning(
+        BaconBesetningType type,
+        IReadOnlyList<BaconValue> args)
+    {
+        var decl = type.Declaration;
+
+        if (args.Count != decl.Fields.Count)
+        {
+            throw new RuntimeException(
+                $"'{decl.Name}' expected {decl.Fields.Count} arguments, got {args.Count}");
+        }
+
+        var fields = new Dictionary<string, BaconValue>();
+        for (var i = 0; i < decl.Fields.Count; i++)
+        {
+            fields[decl.Fields[i].Name] = args[i];
+        }
+
+        return new BaconBesetningInstance(decl.Name, fields);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",

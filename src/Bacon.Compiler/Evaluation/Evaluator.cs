@@ -4,6 +4,8 @@ namespace Bacon.Compiler.Evaluation;
 
 public sealed partial class Evaluator
 {
+    private const string MainProgramName = "hovedprogram";
+
     private readonly Environment _global = new();
     private Environment _current;
 
@@ -31,12 +33,11 @@ public sealed partial class Evaluator
             EvaluateDeclaration(decl);
         }
 
-        // Hvis det finnes en "hovedprogram"-prosess, kjør den
-        if (!_current.IsDefined("hovedprogram"))
+        if (!_current.IsDefined(MainProgramName))
             return BaconNothing.Instance;
 
-        var hovedprogram = _current.Get("hovedprogram");
-        if (hovedprogram is BaconProcess proc)
+        var mainProgram = _current.Get(MainProgramName);
+        if (mainProgram is BaconProcess proc)
         {
             return CallProcess(proc, []);
         }
@@ -49,11 +50,12 @@ public sealed partial class Evaluator
         switch (decl)
         {
             case ProcessDeclaration proc:
-                // Definer prosessen som en variabel i global scope
                 _global.Define(proc.Name, new BaconProcess(proc, _global), isImmutable: true);
                 break;
 
-            case BesetningDeclaration:
+            case BesetningDeclaration besetning:
+                _global.Define(besetning.Name, new BaconBesetningType(besetning), isImmutable: true);
+                break;
             case ImportDeclaration:
             case RouteDeclaration:
                 // TODO: håndter senere

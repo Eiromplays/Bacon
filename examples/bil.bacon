@@ -1,0 +1,14 @@
+besetning Bil {
+    fast id : tekst
+    åpen modell : tekst
+    åpen årsmodell : heltall
+}
+
+prosess hovedprogram() {
+    fast min_bil er Bil("1", "Volvo", 2018)
+    skriv("Bil:", min_bil.modell, min_bil.årsmodell)
+
+    min_bil.modell er "Tesla"
+    min_bil.årsmodell er 2024
+    skriv("Etter oppdatering:", min_bil.modell, min_bil.årsmodell)
+}

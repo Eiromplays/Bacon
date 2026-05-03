@@ -198,4 +198,22 @@ public class LexerTests
         notEqual.Line.ShouldBe(1);
         notEqual.Column.ShouldBe(3);  // "er" starter på kolonne 3
     }
+
+    [Fact]
+    public void Tokenize_IdentifierWithUnderscore_ProducesSingleIdentifier()
+    {
+        var tokens = Lexer.Tokenize("min_bil");
+
+        tokens[0].Type.ShouldBe(TokenType.Identifier);
+        tokens[0].OriginalValue.ShouldBe("min_bil");
+    }
+
+    [Fact]
+    public void Tokenize_IdentifierStartingWithUnderscore_ProducesIdentifier()
+    {
+        var tokens = Lexer.Tokenize("_privat");
+
+        tokens[0].Type.ShouldBe(TokenType.Identifier);
+        tokens[0].OriginalValue.ShouldBe("_privat");
+    }
 }

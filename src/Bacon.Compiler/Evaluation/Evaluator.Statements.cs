@@ -86,11 +86,32 @@ public sealed partial class Evaluator
     {
         var value = EvaluateExpression(stmt.Value);
 
-        if (stmt.Target is not VariableExpression varExpr)
-            throw new RuntimeException("Assignment target must be a variable");
+        switch (stmt.Target)
+        {
+            case VariableExpression varExpr:
+                _current.Assign(varExpr.Name, value);
+                break;
 
-        _current.Assign(varExpr.Name, value);
+            case FieldAccessExpression fieldAccess:
+                AssignField(fieldAccess, value);
+                break;
+
+            default:
+                throw new RuntimeException("Assignment target must be a variable or field access");
+        }
+
         return BaconNothing.Instance;
+    }
+
+    private void AssignField(FieldAccessExpression fieldAccess, BaconValue value)
+    {
+        var target = EvaluateExpression(fieldAccess.Target);
+
+        if (target is not BaconBesetningInstance instance)
+            throw new RuntimeException($"Cannot assign field on {TypeName(target)}");
+
+        // Check that the fields exists (but allows all fields for now, immutability check would require type lookup)
+        instance.Fields[fieldAccess.FieldName] = value;
     }
 
     private BaconValue EvaluateThrow(ThrowStatement stmt)

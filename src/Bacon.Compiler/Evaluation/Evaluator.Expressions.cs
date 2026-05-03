@@ -19,6 +19,7 @@ public sealed partial class Evaluator
             BinaryExpression bin => EvaluateBinary(bin),
             UnaryExpression un => EvaluateUnary(un),
             CallExpression call => EvaluateCall(call),
+            FieldAccessExpression fa => EvaluateFieldAccess(fa),
 
             _ => throw new NotImplementedException($"Expression: {expr.GetType().Name}")
         };
@@ -71,6 +72,19 @@ public sealed partial class Evaluator
             },
             _ => throw new RuntimeException($"Unknown unary operator: {expr.Op}")
         };
+    }
+
+    private BaconValue EvaluateFieldAccess(FieldAccessExpression expr)
+    {
+        var target = EvaluateExpression(expr.Target);
+
+        if (target is not BaconBesetningInstance instance)
+            throw new RuntimeException($"Cannot access field on {TypeName(target)}");
+
+        if (!instance.Fields.TryGetValue(expr.FieldName, out var value))
+            throw new RuntimeException($"'{instance.TypeName}' has no field '{expr.FieldName}'");
+
+        return value;
     }
 
     private static BaconValue Add(BaconValue left, BaconValue right) => (left, right) switch
