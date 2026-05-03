@@ -1,0 +1,14 @@
+prosess hovedprogram() {
+    åpen i er 0
+    så lenge i mindre enn 5 {
+        skriv("teller:", i)
+        i er i + 1
+    }
+
+    fast tall er [1, 2, 3, 4, 5]
+    åpen sum er 0
+    for hver n i tall {
+        sum er sum + n
+    }
+    skriv("sum:", sum)
+}

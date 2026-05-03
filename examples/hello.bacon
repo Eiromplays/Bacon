@@ -1,0 +1,3 @@
+prosess hovedprogram() {
+    skriv("Hei, verden!")
+}

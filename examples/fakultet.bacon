@@ -1,0 +1,11 @@
+prosess fakultet(n) {
+    hvis n mindre eller lik 1 {
+        leverer 1
+    }
+    leverer n * fakultet(n - 1)
+}
+
+prosess hovedprogram() {
+    skriv("fakultet(5) =", fakultet(5))
+    skriv("fakultet(10) =", fakultet(10))
+}
