@@ -146,4 +146,18 @@ public partial class ParserTests
         var throwStmt = stmt.ShouldBeOfType<ThrowStatement>();
         throwStmt.Value.ShouldBeOfType<StringLiteralExpression>();
     }
+
+    [Fact]
+    public void Parse_AssignToLiteral_ThrowsParseException()
+    {
+        var tokens = Lexer.Tokenize("5 er 10");
+        Should.Throw<ParseException>(() => Parser.ParseStatementOnly(tokens));
+    }
+
+    [Fact]
+    public void Parse_AssignToFunctionCall_ThrowsParseException()
+    {
+        var tokens = Lexer.Tokenize("foo() er 10");
+        Should.Throw<ParseException>(() => Parser.ParseStatementOnly(tokens));
+    }
 }

@@ -7,7 +7,12 @@ public sealed class Environment(Environment? parent = null)
 
     public void Define(string name, BaconValue value, bool isImmutable = false)
     {
-        _bindings[name] = value;
+        if (!_bindings.TryAdd(name, value))
+        {
+            var verb = _immutable.Contains(name) ? "immutable" : "existing";
+            throw new RuntimeException($"Cannot redefine {verb} variable '{name}'");
+        }
+
         if (isImmutable)
             _immutable.Add(name);
     }

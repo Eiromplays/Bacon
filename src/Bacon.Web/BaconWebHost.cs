@@ -77,6 +77,14 @@ public sealed class BaconWebHost
             context.Response.StatusCode = 500;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         }
+        catch (Exception ex)
+        {
+            // Catch-all for unexpected errors (NullRef, leaking ReturnException, etc.)
+            // Don't leak internal details to the client
+            await Console.Error.WriteLineAsync($"Internal error: {ex}");
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
+        }
     }
 
     private static async Task WriteJsonResponse(HttpContext context, BaconValue value)

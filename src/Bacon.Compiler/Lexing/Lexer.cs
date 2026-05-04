@@ -117,9 +117,17 @@ public sealed class Lexer
                 var text = _source.Substring(_tokenStartPos, _pos - _tokenStartPos);
 
                 if (isDecimal)
-                    AddToken(TokenType.DecimalLiteral, text, double.Parse(text, CultureInfo.InvariantCulture));
-                else
-                    AddToken(TokenType.IntegerLiteral, text, long.Parse(text, CultureInfo.InvariantCulture));
+                {
+                    if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedDecimalValue))
+                        throw new LexerException($"Invalid decimal literal '{text}'", _tokenStartLine, _tokenStartColumn);
+                    AddToken(TokenType.DecimalLiteral, text, parsedDecimalValue);
+
+                    continue;
+                }
+
+                if (!long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedLongValue))
+                    throw new LexerException($"Invalid integer literal '{text}' (out of range or malformed)", _tokenStartLine, _tokenStartColumn);
+                AddToken(TokenType.IntegerLiteral, text, parsedLongValue);
 
                 continue;
             }
@@ -191,7 +199,10 @@ public sealed class Lexer
                     continue;
             }
 
-            AddSymbolToken(TokenType.Unknown);
+            throw new LexerException(
+                $"Unexpected character '{Current}'",
+                _tokenStartLine,
+                _tokenStartColumn);
         }
 
         AddToken(TokenType.EndOfFile, "", null);

@@ -55,12 +55,12 @@ try
 }
 catch (LexerException ex)
 {
-    Console.Error.WriteLine($"Lexer error: {ex.Message}");
+    Console.Error.WriteLine($"Lexer error at {filePath}:{ex.Line}:{ex.Column}: {ex.Message}");
     return 1;
 }
 catch (ParseException ex)
 {
-    Console.Error.WriteLine($"Parser error: {ex.Message}");
+    Console.Error.WriteLine($"Parser error at {filePath}:{ex.Line}:{ex.Column}: {ex.Message}");
     return 1;
 }
 catch (RuntimeException ex)

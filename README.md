@@ -1,5 +1,7 @@
 # Bacon
 
+[![Build and test](https://github.com/Eiromplays/Bacon/actions/workflows/build-test.yml/badge.svg)](https://github.com/Eiromplays/Bacon/actions/workflows/build-test.yml)
+
 A toy programming language for building web APIs in Norwegian Bokmål.
 
 Inspired by [Brunost](https://github.com/atomfinger/brunost) which a colleague

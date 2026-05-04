@@ -95,11 +95,9 @@ public class LexerTests
     }
 
     [Fact]
-    public void Tokenize_UnknownCharacter_ProducesUnknownToken()
+    public void Tokenize_UnknownCharacter_ThrowsLexerException()
     {
-        var tokens = Lexer.Tokenize("@");
-
-        tokens[0].Type.ShouldBe(TokenType.Unknown);
+        Should.Throw<LexerException>(() => Lexer.Tokenize("@"));
     }
 
     [Fact]
@@ -215,5 +213,11 @@ public class LexerTests
 
         tokens[0].Type.ShouldBe(TokenType.Identifier);
         tokens[0].OriginalValue.ShouldBe("_privat");
+    }
+
+    [Fact]
+    public void Tokenize_IntegerOverflow_ThrowsLexerException()
+    {
+        Should.Throw<LexerException>(() => Lexer.Tokenize("99999999999999999999"));
     }
 }

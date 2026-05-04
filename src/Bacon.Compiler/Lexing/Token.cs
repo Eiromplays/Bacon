@@ -75,7 +75,6 @@ public enum TokenType
     Percent,
 
     // Special
-    Unknown,
     EndOfFile,
 }
 

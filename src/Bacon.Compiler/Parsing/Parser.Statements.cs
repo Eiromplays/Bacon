@@ -86,7 +86,7 @@ public sealed partial class Parser
         return new WhileStatement(condition, body, token.Line);
     }
 
-    // Et uttrykk, evt. fulgt av "er <verdi>" for assignment
+    // An expression, optionally followed by "er <value>" for assignment
     private Statement ParseExpressionOrAssignment()
     {
         var line = Current.Line;
@@ -95,7 +95,12 @@ public sealed partial class Parser
         if (!Match(TokenType.Is))
             return new ExpressionStatement(expr, line);
 
-        // x er 5
+        // Validate that the target is something that can be assigned to
+        if (expr is not (VariableExpression or FieldAccessExpression))
+            throw new ParseException(
+                $"Cannot assign to expression of type {expr.GetType().Name}",
+                line, Current.Column);
+
         var value = ParseExpression();
         return new AssignmentStatement(expr, value, line);
     }

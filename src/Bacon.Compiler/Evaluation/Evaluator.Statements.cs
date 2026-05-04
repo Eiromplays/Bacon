@@ -68,8 +68,19 @@ public sealed partial class Evaluator
 
         foreach (var element in list.Elements)
         {
-            _current.Define(stmt.Variable, element);
-            EvaluateBlock(stmt.Body);
+            // New scope per iteration so the loop variable doesn't leak, and can be redefined each time
+            var savedEnv = _current;
+            _current = new Environment(parent: savedEnv);
+
+            try
+            {
+                _current.Define(stmt.Variable, element);
+                EvaluateBlock(stmt.Body);
+            }
+            finally
+            {
+                _current = savedEnv;
+            }
         }
 
         return BaconNothing.Instance;

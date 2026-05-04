@@ -12,6 +12,27 @@ fast x er 5
 y er "world"
 ```
 
+A name cannot be redeclared in the same scope, even from `fast` to `åpen` or vice versa. Reassigning an `åpen` variable uses `er` without `fast`/`åpen`.
+
+## Scoping
+
+A new scope is introduced by:
+
+- A `prosess` body
+- A `for hver` body (a fresh scope per iteration, so the loop variable does not leak out)
+- A `rute` body
+
+`hvis`/`ellers` and `så lenge` bodies share the enclosing scope. That means you cannot redeclare a name inside an `hvis` block that already exists outside it:
+
+```bacon
+fast x er 5
+hvis sant {
+    fast x er 10   // Runtime error: Cannot redefine immutable variable 'x'
+}
+```
+
+Use a different name, or change the outer variable to `åpen` and reassign with `er`.
+
 ## Types
 
 | Bacon | Description |
@@ -38,6 +59,8 @@ Numeric promotion: integer + decimal = decimal.
 - `større eller lik` — greater or equal
 - `mindre eller lik` — less or equal
 
+Equality is value-based for primitives (`heltall`, `desimal`, `tekst`, `boolsk`, `ingenting`) and across the integer/decimal boundary. Lists and `besetning` instances currently compare by reference, so `[1, 2, 3] er [1, 2, 3]` returns `usant`. Comparing values of different types (e.g. `5 er "5"`) is always `usant`, never an error.
+
 ### Logical
 - `og` — and
 - `eller` — or
@@ -49,11 +72,11 @@ Numeric promotion: integer + decimal = decimal.
 
 ```bacon
 hvis x større enn 5 {
-skriv("stor")
+    skriv("stor")
 } ellers hvis x større enn 0 {
-skriv("liten men positiv")
+    skriv("liten men positiv")
 } ellers {
-skriv("null eller negativ")
+    skriv("null eller negativ")
 }
 ```
 
@@ -62,7 +85,7 @@ skriv("null eller negativ")
 ```bacon
 åpen i er 0
 så lenge i mindre enn 10 {
-i er i + 1
+    i er i + 1
 }
 ```
 
@@ -70,7 +93,7 @@ i er i + 1
 
 ```bacon
 for hver tall i [1, 2, 3] {
-skriv(tall)
+    skriv(tall)
 }
 ```
 
@@ -78,11 +101,11 @@ skriv(tall)
 
 ```bacon
 prosess summer(a, b) {
-leverer a + b
+    leverer a + b
 }
 
 prosess hovedprogram() {
-skriv(summer(2, 3))
+    skriv(summer(2, 3))
 }
 ```
 
@@ -92,26 +115,26 @@ skriv(summer(2, 3))
 
 ```bacon
 besetning Bil {
-fast id : tekst        // immutable field
-åpen modell : tekst    // mutable field
+    fast id : tekst        // immutable field
+    åpen modell : tekst    // mutable field
 }
 
 prosess hovedprogram() {
-fast min_bil er Bil("1", "Volvo")
-skriv(min_bil.modell)
-min_bil.modell er "Toyota"
+    fast min_bil er Bil("1", "Volvo")
+    skriv(min_bil.modell)
+    min_bil.modell er "Toyota"
 }
 ```
 
-Constructor uses positional arguments.
+Constructor uses positional arguments, in declaration order. All fields are required.
 
 ## Errors
 
 ```bacon
 prøv {
-kast "noe gikk galt"
+    kast "noe gikk galt"
 } fanger feil {
-skriv("fanget:", feil)
+    skriv("fanget:", feil)
 }
 ```
 
@@ -131,7 +154,7 @@ Routes are top-level declarations:
 
 ```bacon
 rute GET "/bil/{id}" {
-leverer hent_bil(parameter.id)
+    leverer hent_bil(parameter.id)
 }
 ```
 

@@ -474,4 +474,53 @@ public class EvaluatorTests
                                                  }
                                                  """));
     }
+
+    [Fact]
+    public void Evaluate_RedefineImmutable_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+                                                 prosess hovedprogram() {
+                                                     fast x er 5
+                                                     fast x er 10
+                                                 }
+                                                 """));
+    }
+
+    [Fact]
+    public void Evaluate_RedefineMutable_ThrowsRuntimeException()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+                                                 prosess hovedprogram() {
+                                                     åpen x er 5
+                                                     åpen x er 10
+                                                 }
+                                                 """));
+    }
+
+    [Fact]
+    public void Evaluate_ForEachVariable_DoesNotLeakAfterLoop()
+    {
+        Should.Throw<RuntimeException>(() => Run("""
+                                                 prosess hovedprogram() {
+                                                     for hver x i [1, 2, 3] {
+                                                     }
+                                                     leverer x
+                                                 }
+                                                 """));
+    }
+
+    [Fact]
+    public void Evaluate_ForEach_DoesNotConflictWithOuterFast()
+    {
+        var result = Run("""
+                         prosess hovedprogram() {
+                             fast x er 100
+                             for hver y i [1, 2, 3] {
+                             }
+                             leverer x
+                         }
+                         """);
+
+        result.ShouldBeOfType<BaconInteger>().Value.ShouldBe(100L);
+    }
 }
