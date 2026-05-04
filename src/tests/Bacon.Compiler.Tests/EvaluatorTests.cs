@@ -381,12 +381,12 @@ public class EvaluatorTests
             }
             prosess hovedprogram() {
                 fast b er Bil("Volvo")
-                b.modell er "Tesla"
+                b.modell er "Toyota"
                 leverer b.modell
             }
             """);
 
-        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Tesla");
+        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Toyota");
     }
 
     [Fact]
@@ -453,12 +453,12 @@ public class EvaluatorTests
                          }
                          prosess hovedprogram() {
                              fast b er Bil("1", "Volvo")
-                             b.modell er "Tesla"
+                             b.modell er "Toyota"
                              leverer b.modell
                          }
                          """);
 
-        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Tesla");
+        result.ShouldBeOfType<BaconString>().Value.ShouldBe("Toyota");
     }
 
     [Fact]

@@ -48,6 +48,10 @@ rute GET "/bil/{id}" {
 }
 ```
 
+## Documentation
+
+See [LANGUAGE.md](LANGUAGE.md) for full syntax reference.
+
 ## What's done
 
 - Lexer with multi-word operators (`større enn`, `er ikke`, etc.)
