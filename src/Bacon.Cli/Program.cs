@@ -10,17 +10,31 @@ if (args.Length < 1)
 }
 
 var serve = args.Contains("--serve");
-var portArg = ParsePortArg(args);
-var filePath = ParseFilePath(args);
 
-if (portArg.HasValue && !serve)
+int? portArg;
+string? hostArg;
+try
 {
-    Console.Error.WriteLine("Error: --port can only be used with --serve");
+    portArg = ParsePortArg(args);
+    hostArg = ParseHostArg(args);
+}
+catch (ArgumentException ex)
+{
+    Console.Error.WriteLine($"Error: {ex.Message}");
     PrintUsage();
     return 1;
 }
 
-if (filePath == null)
+var filePath = ParseFilePath(args);
+
+if ((portArg.HasValue || hostArg != null) && !serve)
+{
+    Console.Error.WriteLine("Error: --port and --host can only be used with --serve");
+    PrintUsage();
+    return 1;
+}
+
+if (string.IsNullOrWhiteSpace(filePath))
 {
     Console.Error.WriteLine("Error: missing file argument");
     PrintUsage();
@@ -33,7 +47,6 @@ if (!File.Exists(filePath))
     return 1;
 }
 
-var port = portArg ?? 5000;
 var source = await File.ReadAllTextAsync(filePath);
 
 try
@@ -44,7 +57,7 @@ try
     if (serve)
     {
         var host = new BaconWebHost(program);
-        await host.RunAsync(port);
+        await host.RunAsync(portArg ?? 5000, hostArg ?? "localhost");
     }
     else
     {
@@ -65,7 +78,9 @@ catch (ParseException ex)
 }
 catch (RuntimeException ex)
 {
-    Console.Error.WriteLine($"Runtime error: {ex.Message}");
+    Console.Error.WriteLine(ex.Line.HasValue
+        ? $"Runtime error at {filePath}:{ex.Line}: {ex.Message}"
+        : $"Runtime error: {ex.Message}");
     return 1;
 }
 
@@ -84,13 +99,22 @@ static int? ParsePortArg(string[] args)
     return port is < 1 or > 65535 ? throw new ArgumentException($"Invalid port value: {port} (must be 1-65535)") : port;
 }
 
+static string? ParseHostArg(string[] args)
+{
+    var index = Array.IndexOf(args, "--host");
+    if (index < 0) return null;
+
+    return index + 1 >= args.Length ? throw new ArgumentException("--host requires a value") : args[index + 1];
+}
+
 static string? ParseFilePath(string[] args)
 {
     for (var i = 0; i < args.Length; i++)
     {
-        if (!args[i].StartsWith("--"))
+        if (!args[i].StartsWith("--", StringComparison.Ordinal))
             return args[i];
-        if (args[i] == "--port")
+
+        if (args[i] is "--port" or "--host")
             i++;
     }
     return null;
@@ -98,9 +122,10 @@ static string? ParseFilePath(string[] args)
 
 static void PrintUsage()
 {
-    Console.Error.WriteLine("Usage: Bacon.Cli [--serve] [--port <port>] <file.bacon>");
+    Console.Error.WriteLine("Usage: Bacon.Cli [--serve] [--port <port>] [--host <host>] <file.bacon>");
     Console.Error.WriteLine();
     Console.Error.WriteLine("Options:");
     Console.Error.WriteLine("  --serve         Run as a web server");
     Console.Error.WriteLine("  --port <port>   Port to serve on (default 5000, requires --serve)");
+    Console.Error.WriteLine("  --host <host>   Host to bind to (default localhost, requires --serve)");
 }

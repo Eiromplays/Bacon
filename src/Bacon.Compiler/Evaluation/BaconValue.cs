@@ -21,9 +21,12 @@ public sealed record BaconBesetningInstance(
 }
 public sealed record BaconBesetningType(BesetningDeclaration Declaration) : BaconValue;
 
-public sealed record BaconProcess(
-    ProcessDeclaration Declaration,
-    Environment Closure) : BaconValue;
+/// <summary>
+/// The environment captured at process declaration time. Currently, always _global
+/// because Bacon doesn't yet support nested process declarations. When that changes,
+/// this will capture the lexical scope at declaration site.
+/// </summary>
+public sealed record BaconProcess(ProcessDeclaration Declaration, Environment Closure) : BaconValue;
 
 public sealed record BaconBuiltinFunction(
     string Name,

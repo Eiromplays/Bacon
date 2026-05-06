@@ -4,6 +4,8 @@ namespace Bacon.Compiler.Evaluation;
 
 public sealed partial class Evaluator
 {
+    private const string PathParametersBinding = "parameter";
+
     public void PrepareGlobalScope(Program program)
     {
         foreach (var decl in program.Declarations)
@@ -24,7 +26,7 @@ public sealed partial class Evaluator
             paramFields[key] = new BaconString(value);
         }
 
-        routeEnv.Define("parameter", new BaconPathParameters(paramFields));
+        routeEnv.Define(PathParametersBinding, new BaconPathParameters(paramFields));
 
         var savedEnv = _current;
         _current = routeEnv;

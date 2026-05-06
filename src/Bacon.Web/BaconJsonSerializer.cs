@@ -6,7 +6,7 @@ namespace Bacon.Web;
 
 public static class BaconJsonSerializer
 {
-    private static readonly JsonSerializerOptions Options = new()
+    public static readonly JsonSerializerOptions Options = new()
     {
         // UnsafeRelaxedJsonEscaping is safe for API responses with application/json content-type.
         // It allows non-ASCII characters (like Norwegian å, ø, æ) to be sent as UTF-8 directly

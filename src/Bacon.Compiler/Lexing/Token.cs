@@ -80,5 +80,12 @@ public enum TokenType
 
 public sealed record Token(TokenType Type, string? OriginalValue, object? Value, int Line, int Column, int Position)
 {
-    public override string ToString() => $"{Line,-5} {Column,-4} {Type,-12} {(Value is IFormattable f ? f.ToString(null, CultureInfo.InvariantCulture) : Value?.ToString() ?? "")}";
+    public override string ToString()
+    {
+        var display = Value is IFormattable f
+            ? f.ToString(null, CultureInfo.InvariantCulture)
+            : Value?.ToString() ?? OriginalValue ?? "";
+
+        return $"{Line,-5} {Column,-4} {Type,-12} {display}";
+    }
 }

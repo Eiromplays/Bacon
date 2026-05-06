@@ -523,4 +523,83 @@ public class EvaluatorTests
 
         result.ShouldBeOfType<BaconInteger>().Value.ShouldBe(100L);
     }
+
+    [Fact]
+    public void Evaluate_EqualLists_ReturnsTrue()
+    {
+        var result = Eval("[1, 2, 3] er [1, 2, 3]");
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_DifferentLists_ReturnsFalse()
+    {
+        var result = Eval("[1, 2, 3] er [1, 2, 4]");
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Evaluate_DifferentLengthLists_ReturnsFalse()
+    {
+        var result = Eval("[1, 2, 3] er [1, 2]");
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Evaluate_NestedLists_ReturnsTrue()
+    {
+        var result = Eval("[[1, 2], [3]] er [[1, 2], [3]]");
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_EqualBesetningInstances_ReturnsTrue()
+    {
+        var result = Run("""
+                         besetning Bil {
+                             fast id : tekst
+                             fast modell : tekst
+                         }
+                         prosess hovedprogram() {
+                             fast a er Bil("1", "Volvo")
+                             fast b er Bil("1", "Volvo")
+                             leverer a er b
+                         }
+                         """);
+
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_DifferentBesetningInstances_ReturnsFalse()
+    {
+        var result = Run("""
+                         besetning Bil {
+                             fast id : tekst
+                         }
+                         prosess hovedprogram() {
+                             fast a er Bil("1")
+                             fast b er Bil("2")
+                             leverer a er b
+                         }
+                         """);
+
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Evaluate_DifferentBesetningTypes_ReturnsFalse()
+    {
+        var result = Run("""
+                         besetning Bil { fast id : tekst }
+                         besetning Bonde { fast id : tekst }
+                         prosess hovedprogram() {
+                             fast a er Bil("1")
+                             fast b er Bonde("1")
+                             leverer a er b
+                         }
+                         """);
+
+        result.ShouldBeOfType<BaconBoolean>().Value.ShouldBeFalse();
+    }
 }

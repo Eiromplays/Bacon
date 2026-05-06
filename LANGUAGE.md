@@ -166,7 +166,13 @@ Run as web server with `--serve`:
 dotnet run --project src/Bacon.Cli/Bacon.Cli.csproj -- --serve api.bacon
 ```
 
-Currently supported HTTP methods: GET, POST, PUT, DELETE, PATCH.
+Options:
+- `--port <port>` — port to bind to (default 5000)
+- `--host <host>` — host to bind to (default localhost; use `0.0.0.0` for container scenarios)
+
+**Notes:**
+- Bacon serves HTTP only. For HTTPS, use a reverse proxy like Caddy or nginx in front.
+- HTTP methods are case-sensitive and must be uppercase. Lowercase `get` will be parsed as an identifier, not an HTTP method.
 
 ## Comments
 

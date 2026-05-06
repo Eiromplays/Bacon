@@ -11,25 +11,24 @@ public sealed partial class Evaluator
 
         return callee switch
         {
-            BaconProcess process => CallProcess(process, args),
+            BaconProcess process => CallProcess(process, args, call.Line),
             BaconBuiltinFunction builtin => builtin.Implementation(args),
-            BaconBesetningType type => InstantiateBesetning(type, args),
-            _ => throw new RuntimeException($"Cannot call value of type {TypeName(callee)}")
+            BaconBesetningType type => InstantiateBesetning(type, args, call.Line),
+            _ => throw new RuntimeException($"Cannot call value of type {TypeName(callee)}", call.Line)
         };
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",
-        Justification = "We do not need to modify the list just read it")]
     private static BaconBesetningInstance InstantiateBesetning(
         BaconBesetningType type,
-        IReadOnlyList<BaconValue> args)
+        IReadOnlyList<BaconValue> args,
+        int line)
     {
         var decl = type.Declaration;
 
         if (args.Count != decl.Fields.Count)
         {
             throw new RuntimeException(
-                $"'{decl.Name}' expected {decl.Fields.Count} arguments, got {args.Count}");
+                $"'{decl.Name}' expected {decl.Fields.Count} arguments, got {args.Count}", line);
         }
 
         var fields = new Dictionary<string, BaconValue>();
@@ -41,16 +40,14 @@ public sealed partial class Evaluator
         return new BaconBesetningInstance(type, fields);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",
-        Justification = "We do not need to modify the list just read it")]
-    private BaconValue CallProcess(BaconProcess process, IReadOnlyList<BaconValue> args)
+    private BaconValue CallProcess(BaconProcess process, IReadOnlyList<BaconValue> args, int line)
     {
         var decl = process.Declaration;
 
         if (args.Count != decl.Parameters.Count)
         {
             throw new RuntimeException(
-                $"'{decl.Name}' expected {decl.Parameters.Count} arguments, got {args.Count}");
+                $"'{decl.Name}' expected {decl.Parameters.Count} arguments, got {args.Count}", line);
         }
 
         var callEnv = new Environment(parent: process.Closure);

@@ -19,7 +19,7 @@ public sealed partial class Evaluator
                     ? EvaluateExpression(ret.Value)
                     : BaconNothing.Instance),
             ThrowStatement thr => EvaluateThrow(thr),
-            _ => throw new RuntimeException($"Unknown statement: {stmt.GetType().Name}")
+            _ => throw new RuntimeException($"Unknown statement: {stmt.GetType().Name}", stmt.Line)
         };
     }
 
@@ -28,13 +28,13 @@ public sealed partial class Evaluator
         var condition = EvaluateExpression(stmt.Condition);
 
         if (condition is not BaconBoolean b)
-            throw new RuntimeException($"If condition must be boolean, got {TypeName(condition)}");
+            throw new RuntimeException($"If condition must be boolean, got {TypeName(condition)}", stmt.Line);
 
         if (b.Value)
         {
             EvaluateBlock(stmt.ThenBranch);
         }
-        else if (stmt.ElseBranch != null)
+        else if (stmt.ElseBranch is not null)
         {
             EvaluateBlock(stmt.ElseBranch);
         }
@@ -49,7 +49,7 @@ public sealed partial class Evaluator
             var condition = EvaluateExpression(stmt.Condition);
 
             if (condition is not BaconBoolean b)
-                throw new RuntimeException($"While condition must be boolean, got {TypeName(condition)}");
+                throw new RuntimeException($"While condition must be boolean, got {TypeName(condition)}", stmt.Line);
 
             if (!b.Value) break;
 
@@ -64,7 +64,7 @@ public sealed partial class Evaluator
         var iterable = EvaluateExpression(stmt.Iterable);
 
         if (iterable is not BaconList list)
-            throw new RuntimeException($"ForEach requires a list, got {TypeName(iterable)}");
+            throw new RuntimeException($"ForEach requires a list, got {TypeName(iterable)}", stmt.Line);
 
         foreach (var element in list.Elements)
         {
@@ -89,7 +89,16 @@ public sealed partial class Evaluator
     private BaconNothing EvaluateVariableDeclaration(VariableDeclarationStatement stmt)
     {
         var value = EvaluateExpression(stmt.Value);
-        _current.Define(stmt.Name, value, isImmutable: stmt.IsImmutable);
+
+        try
+        {
+            _current.Define(stmt.Name, value, isImmutable: stmt.IsImmutable);
+        }
+        catch (RuntimeException ex) when (!ex.Line.HasValue)
+        {
+            throw new RuntimeException(ex.Message, stmt.Line);
+        }
+
         return BaconNothing.Instance;
     }
 
@@ -100,37 +109,44 @@ public sealed partial class Evaluator
         switch (stmt.Target)
         {
             case VariableExpression varExpr:
-                _current.Assign(varExpr.Name, value);
+                try
+                {
+                    _current.Assign(varExpr.Name, value);
+                }
+                catch (RuntimeException ex) when (!ex.Line.HasValue)
+                {
+                    throw new RuntimeException(ex.Message, stmt.Line);
+                }
                 break;
 
             case FieldAccessExpression fieldAccess:
-                AssignField(fieldAccess, value);
+                AssignField(fieldAccess, value, stmt.Line);
                 break;
 
             default:
-                throw new RuntimeException("Assignment target must be a variable or field access");
+                throw new RuntimeException("Assignment target must be a variable or field access", stmt.Line);
         }
 
         return BaconNothing.Instance;
     }
 
-    private void AssignField(FieldAccessExpression fieldAccess, BaconValue value)
+    private void AssignField(FieldAccessExpression fieldAccess, BaconValue value, int line)
     {
         var target = EvaluateExpression(fieldAccess.Target);
 
         if (target is not BaconBesetningInstance instance)
-            throw new RuntimeException($"Cannot assign field on {TypeName(target)}");
+            throw new RuntimeException($"Cannot assign field on {TypeName(target)}", line);
 
         var fieldDecl = instance.Type.Declaration.Fields
             .FirstOrDefault(f => f.Name == fieldAccess.FieldName);
 
         if (fieldDecl == null)
             throw new RuntimeException(
-                $"'{instance.TypeName}' has no field '{fieldAccess.FieldName}'");
+                $"'{instance.TypeName}' has no field '{fieldAccess.FieldName}'", line);
 
         if (fieldDecl.IsImmutable)
             throw new RuntimeException(
-                $"Cannot reassign immutable field '{fieldAccess.FieldName}' on '{instance.TypeName}'");
+                $"Cannot reassign immutable field '{fieldAccess.FieldName}' on '{instance.TypeName}'", line);
 
         instance.Fields[fieldAccess.FieldName] = value;
     }
@@ -145,7 +161,7 @@ public sealed partial class Evaluator
             _ => $"Thrown value: {value}"
         };
 
-        throw new RuntimeException(message);
+        throw new RuntimeException(message, stmt.Line);
     }
 
     private void EvaluateBlock(IReadOnlyList<Statement> statements)

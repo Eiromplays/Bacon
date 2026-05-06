@@ -1,0 +1,4 @@
+# CA1859: Use concrete types when possible
+# We deliberately return IReadOnlyList<T> for API stability over micro-optimization
+[*.cs]
+dotnet_diagnostic.CA1859.severity = none

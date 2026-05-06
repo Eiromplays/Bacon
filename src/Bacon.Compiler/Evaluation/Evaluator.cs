@@ -39,7 +39,7 @@ public sealed partial class Evaluator
         var mainProgram = _current.Get(MainProgramName);
         if (mainProgram is BaconProcess proc)
         {
-            return CallProcess(proc, []);
+            return CallProcess(proc, [], proc.Declaration.Line);
         }
 
         return BaconNothing.Instance;

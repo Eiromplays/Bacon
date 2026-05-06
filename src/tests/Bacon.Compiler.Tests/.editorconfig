@@ -1,2 +1,4 @@
+# CA1707: Identifiers should not contain underscores
+# xUnit test convention is MethodName_Scenario_ExpectedResult
 [*.cs]
 dotnet_diagnostic.CA1707.severity = none

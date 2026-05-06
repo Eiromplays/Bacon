@@ -17,7 +17,7 @@ public sealed class BaconWebHost
         _evaluator.PrepareGlobalScope(program);
     }
 
-    public async Task RunAsync(int port = 5000)
+    public async Task RunAsync(int port = 5000, string host = "localhost")
     {
         var builder = WebApplication.CreateBuilder();
         var app = builder.Build();
@@ -30,8 +30,8 @@ public sealed class BaconWebHost
             }
         }
 
-        Console.WriteLine($"Bacon serving on http://localhost:{port}");
-        await app.RunAsync($"http://localhost:{port}");
+        Console.WriteLine($"Bacon serving on http://{host}:{port}");
+        await app.RunAsync($"http://{host}:{port}");
     }
 
     private void RegisterRoute(WebApplication app, RouteDeclaration route)
@@ -75,7 +75,7 @@ public sealed class BaconWebHost
         catch (RuntimeException ex)
         {
             context.Response.StatusCode = 500;
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message }, BaconJsonSerializer.Options);
         }
         catch (Exception ex)
         {
@@ -83,7 +83,7 @@ public sealed class BaconWebHost
             // Don't leak internal details to the client
             await Console.Error.WriteLineAsync($"Internal error: {ex}");
             context.Response.StatusCode = 500;
-            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
+            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" }, BaconJsonSerializer.Options);
         }
     }
 

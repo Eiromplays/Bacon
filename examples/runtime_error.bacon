@@ -1,0 +1,4 @@
+prosess hovedprogram() {
+    fast x er 5
+    leverer x + "hello"
+}

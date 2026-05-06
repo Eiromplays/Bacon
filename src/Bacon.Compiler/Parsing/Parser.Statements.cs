@@ -5,7 +5,16 @@ namespace Bacon.Compiler.Parsing;
 
 public sealed partial class Parser
 {
-    private const int AssignmentBoundaryPrecedence = 31;
+    private static readonly int AssignmentBoundaryPrecedence = ComputeAssignmentBoundary();
+
+    private static int ComputeAssignmentBoundary()
+    {
+        if (!BinaryOperators.TryGetValue(TokenType.Is, out var info))
+            throw new InvalidOperationException(
+                "BinaryOperators must contain TokenType.Is for AssignmentBoundaryPrecedence");
+
+        return info.Precedence + 1;
+    }
 
     private Statement ParseStatement()
     {
@@ -124,8 +133,6 @@ public sealed partial class Parser
     }
 
     // { stmt1 stmt2 ... }
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859",
-        Justification = "API consistency with AST nodes")]
     private IReadOnlyList<Statement> ParseBlock()
     {
         Expect(TokenType.LeftBrace, "{");
