@@ -1,13 +1,19 @@
 ---
 name: Feature request
-about: Suggest a feature for Bacon
+about: Suggest a new feature for Bacon
+title: '[Feature] '
+labels: enhancement
 ---
 
 **Description:**
+(What's the feature?)
 
 **Example syntax:**
 ```bacon
 // what would it look like?
 ```
 
-**Why it would be useful:**
+**Why is this useful?**
+
+**Alternative approaches considered:**
+(Optional)
